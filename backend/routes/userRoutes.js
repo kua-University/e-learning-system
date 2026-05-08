@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db");
 
-// REGISTER
 router.post("/register", (req, res) => {
   const { name, password } = req.body;
 
@@ -11,23 +10,25 @@ router.post("/register", (req, res) => {
     [name, password],
     function (err) {
       if (err) return res.status(500).send(err);
-      res.send({ message: "User registered" });
+
+      res.send({ message: "Registered successfully" });
     }
   );
 });
 
-// LOGIN
 router.post("/login", (req, res) => {
   const { name, password } = req.body;
 
   db.get(
-    "SELECT * FROM users WHERE name = ? AND password = ?",
+    "SELECT * FROM users WHERE name=? AND password=?",
     [name, password],
     (err, user) => {
       if (err) return res.status(500).send(err);
 
       if (!user) {
-        return res.status(401).send({ message: "Invalid credentials" });
+        return res.status(401).send({
+          message: "Invalid credentials"
+        });
       }
 
       res.send({ user });

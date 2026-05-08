@@ -10,7 +10,10 @@ router.post("/", (req, res) => {
     [userId, courseId],
     function (err) {
       if (err) return res.status(500).send(err);
-      res.send({ message: "Enrolled successfully" });
+
+      res.send({
+        message: "Enrollment successful"
+      });
     }
   );
 });
