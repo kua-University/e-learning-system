@@ -2,29 +2,40 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db");
 
-router.post("/", (req, res) => {
-  const { title } = req.body;
+const { getCache, setCache } = require("../cache");
 
-  db.run(
-    "INSERT INTO courses (title) VALUES (?)",
-    [title],
-    function (err) {
-      if (err) return res.status(500).send(err);
+// GET COURSES
+router.get("/", async (req, res) => {
 
-      res.send({
-        id: this.lastID,
-        title
-      });
+  try {
+
+    // CHECK REDIS CACHE FIRST
+    const cachedCourses = await getCache("courses");
+
+    if (cachedCourses) {
+      console.log("Serving courses from Redis cache");
+      return res.json(cachedCourses);
     }
-  );
-});
 
-router.get("/", (req, res) => {
-  db.all("SELECT * FROM courses", [], (err, rows) => {
-    if (err) return res.status(500).send(err);
+    // DATABASE QUERY
+    db.all("SELECT * FROM courses", [], async (err, rows) => {
 
-    res.send(rows);
-  });
+      if (err) {
+        return res.status(500).json({ message: err.message });
+      }
+
+      // SAVE TO REDIS CACHE
+      await setCache("courses", rows, 120);
+
+      console.log("Serving courses from SQLite DB");
+
+      res.json(rows);
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+
 });
 
 module.exports = router;
