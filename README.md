@@ -9,7 +9,6 @@
 * **Submission Date:** 03/09/2018 EC
 
 ---
-
 # 📌 Project Overview
 
 The E-Learning System is a full-stack web application developed to support online learning activities such as user authentication, course management, enrollments, and assessments.
